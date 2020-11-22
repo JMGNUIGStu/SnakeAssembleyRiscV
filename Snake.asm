@@ -8,9 +8,9 @@
 #  x9    - Used to get coordinates for food
 #  x10   - Used to track Snake location + direction
 #  x11   - general use register
-#  x12   - general use register 
+#  x12   - general use register
 #  x13   - general use register
-#  x14   - general use register 
+#  x14   - Loop Counter
 #  x15   - Score 
 
 # Controls
@@ -22,7 +22,7 @@ initialiseRegisters:
 lui x3, 0x00010000
 lui x9, 0x0bcde
 addi x9, x0, 321
-lui x10  
+lui x10, 0x00010000  
 
 # Following block courtesy of Fearghal Morgan, National University of Ireland Galway
 # We required the similar controls and delay as his target shooting game.
@@ -44,13 +44,30 @@ placeFood:
 # x9(3:0) - Used to get X Co ordinate for food
 # x9(6:4) - Used to get Y Co Ordinate for food
 # x9(7)   - Used to aid RNG
+sub x12, x12            # Clear x12
+add x12, x9, x0         # Store x9 value
+slli x9, x9, 2          # Shift x9 Left 2 to remove upper digits
+srli x9, x9, 5          # Shift x9 Right 5 to remove lower digits, x9 now contains x12(5:3)
+add x13, x9, x12        # Add x9 to x12 and store in x14
+slli x9,  x13, 5        # Shift x14 Left 5 to remove upper digits
+srli x9, x9, 7          # Shift x9 Right 7 Digits to remove lower digits
+stli x11, x9, 8         # Set x11 = 1 if x9 < 8
+beq x11, 1, setFoodX    # If x11 = 1, go to setFoodX
+addi x9, x0, -8         # Subtract 8 from x9
+stli x11, x9, 8         # Set x11 = 1 if x9 < 8
+beq x11, 1, setFoodX    # If x11 = 1, go to setFoodX
 
-# add x9, x9(5:3), x9
-# If x9(0) < 8          # If x9(0) is less than 8, place food in the value of that row, use x9(3:1) to place in that column
-# addi x9(0), x9(3:1)
-# Else 
-# sub x9, 8             # If x9(0) is greater than 8, subtract 8, place food in value of that row, use x9(3:1) to place in that column
-# addi x9(0), x9(3:1)
+setFoodX:               # Chooses which row to place Food on depending on value of x14
+beq x14, 1, setFood1    
+beq x14, 2, setFood2
+beq x14, 3, setFood3
+beq x14, 4, setFood4
+beq x14, 5, setFood5
+beq x14, 6, setFood6
+beq x14, 7, setFood7
+beq x14, 8, setFood8
+addi x14, x14, -3   # If none, subtract 3 from x14
+bge x14, 8, setFoodX
 
 moveSnake:
 # If x10(7)     = 1, Snake in x1
