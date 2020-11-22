@@ -44,10 +44,13 @@ placeFood:
 # x9(3:0) - Used to get X Co ordinate for food
 # x9(6:4) - Used to get Y Co Ordinate for food
 # x9(7)   - Used to aid RNG
+
 # add x9, x9(5:3), x9
-# 
-
-
+# If x9(0) < 8          # If x9(0) is less than 8, place food in the value of that row, use x9(3:1) to place in that column
+# addi x9(0), x9(3:1)
+# Else 
+# sub x9, 8             # If x9(0) is greater than 8, subtract 8, place food in value of that row, use x9(3:1) to place in that column
+# addi x9(0), x9(3:1)
 
 moveSnake:
 # If x10(7)     = 1, Snake in x1
@@ -96,7 +99,25 @@ moveSnake:
 #                 add x10(7), x9
 
 checkFoodEaten:
+#                       This is a bit finicky
+# if x10(7)(the register i.e. current row) = x9(0)
+# and if x10(7)(the value of the row the snake is in) = x9(6:1)
+# Increment score by 1
+# placeFood
 
 incrementScore:
+addi x15, x15, 1
 
 killSnake:
+# If x10(7) = 1     #If snake is in x1 and moves up
+# And x10(0) = 2 
+endGame
+# If x10(7) = 8     #If snake is in x8 and moves down
+# And x10(0) = 4 
+endGame
+# If x10(7)(vlaue of the row the snake is in) = 0xf0000000 
+# And x10(0) = 1    # If snake is at far left and moves left
+endGame
+# If x10(7)(vlaue of the row the snake is in) = 0x0000000f
+# And x10(0) = 3    # If snake is at far right and moves right
+endGame
